@@ -16,25 +16,6 @@ class ApplicationController < Sinatra::Base
     erb :index
   end
 
-  get '/signup' do
-    if !logged_in?
-      erb :'users/create_user'
-    else
-      redirect '/tweets'
-    end
-  end
-
-  post '/signup' do
-
-    if params[:username] == '' || params[:email] =='' || params[:password] == ''
-      redirect '/signup'
-    else
-      user = User.create(params)
-      session[:user_id] = user.id
-      redirect '/tweets'
-    end
-  end
-
   helpers do
 
     def logged_in?
