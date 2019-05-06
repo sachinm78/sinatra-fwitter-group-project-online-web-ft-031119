@@ -51,12 +51,6 @@ class ApplicationController < Sinatra::Base
       @current_user ||= User.find_by(id: session[:user_id]) if session[:user_id]
     end
   
-    def login_sequence
-      if !logged_in?
-        redirect '/login'
-      end
-    end
-  
     def log_out
       session.destroy
     end

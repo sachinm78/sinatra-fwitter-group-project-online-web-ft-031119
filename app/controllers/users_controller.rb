@@ -1,12 +1,8 @@
 class UsersController < ApplicationController
-  configure do
-    enable :sessions
-    set :session_secret, "secret"
-  end
-
+  
   get '/signup' do
-     if !logged_in?
-      erb :'users/create_user', locals: {message: "Please sign up before you sign in"}
+    if !logged_in?
+      erb :'users/create_user'
     else
       redirect to '/tweets'
     end

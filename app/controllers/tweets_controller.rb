@@ -1,10 +1,5 @@
 class TweetsController < ApplicationController
 
-  configure do
-    enable :sessions
-    set :session_secret, "secret"
-  end
-
   get '/tweets' do
     if logged_in?
       @users = current_user
@@ -29,9 +24,9 @@ class TweetsController < ApplicationController
     @tweet = Tweet.new(params)
     @user = current_user
     if logged_in? && !@tweet.content.blank? && @tweet.save
-      redirect to "/tweets/#{@tweet.id}"  # target Id of specific tweets.
+      redirect to "/tweets/#{@tweet.id}"  
     else
-      redirect "/tweets/new"  #this is a route
+      redirect "/tweets/new"  
     end
   end
 
@@ -48,7 +43,7 @@ class TweetsController < ApplicationController
 
   get '/tweets/:id/edit' do
     if logged_in?
-      @tweet = Tweet.find_by_id(params[:id]) # slug helps to find by name instaed of ID
+      @tweet = Tweet.find_by_id(params[:id]) 
       erb :'tweets/edit_tweet'
     else
      redirect to "/login"
