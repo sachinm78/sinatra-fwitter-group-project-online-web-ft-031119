@@ -1,75 +1,78 @@
 class TweetsController < ApplicationController
 
-  get '/tweets' do
-    if !Helpers.is_logged_in?(session)
-      redirect to '/login'
-    end
-    @tweets = Tweet.all
-    @user = Helpers.current_user(session)
-    erb :"/tweets/tweets"
+  configure do
+    enable :sessions
+    set :session_secret, "secret"
   end
 
-  get '/tweets/new' do
-    if !Helpers.is_logged_in?(session)
-      redirect to '/login'
+  get '/tweets' do
+    if logged_in?
+      @users = current_user
+      @tweets = Tweet.all
+      erb :'tweets/tweets'
+    else
+      redirect to "/login"
     end
-    erb :"/tweets/create_tweet"
+ end
+
+
+  get '/tweets/new' do
+    if logged_in?
+      @user = current_user
+      erb :'tweets/create_tweet'
+    else
+      redirect "/login"
+    end
   end
 
   post '/tweets' do
-    user = Helpers.current_user(session)
-    if params["content"].empty?
-      flash[:empty_tweet] = "Please enter content for your tweet"
-      redirect to '/tweets/new'
+    @tweet = Tweet.new(params)
+    @user = current_user
+    if logged_in? && !@tweet.content.blank? && @tweet.save
+      redirect to "/tweets/#{@tweet.id}"  # target Id of specific tweets.
+    else
+      redirect "/tweets/new"  #this is a route
     end
-    tweet = Tweet.create(:content => params["content"], :user_id => user.id)
-
-    redirect to '/tweets'
   end
 
-  get '/tweets/:id' do
-    if !Helpers.is_logged_in?(session)
-      redirect to '/login'
+
+  get "/tweets/:id" do
+    if logged_in?
+      @tweet = Tweet.find_by_id(params[:id])
+      erb :'tweets/show_tweet'
+    else
+      redirect to "/login"
     end
-    @tweet = Tweet.find(params[:id])
-    erb :"tweets/show_tweet"
   end
+
 
   get '/tweets/:id/edit' do
-    if !Helpers.is_logged_in?(session)
-      redirect to '/login'
+    if logged_in?
+      @tweet = Tweet.find_by_id(params[:id]) # slug helps to find by name instaed of ID
+      erb :'tweets/edit_tweet'
+    else
+     redirect to "/login"
     end
-    @tweet = Tweet.find(params[:id])
-    if Helpers.current_user(session).id != @tweet.user_id
-      flash[:wrong_user_edit] = "Sorry you can only edit your own tweets"
-      redirect to '/tweets'
-    end
-    erb :"tweets/edit_tweet"
+  end
+  
+  patch "/tweets/:id" do
+     @tweet = Tweet.find(params[:id])
+     if logged_in? && !params[:content].blank?
+       @tweet.update(content: params[:content])  
+       @tweet.save
+       redirect to "/tweets/#{@tweet.id}"
+     else
+       redirect to "/tweets/#{@tweet.id}/edit"
+     end
   end
 
-  patch '/tweets/:id' do
-    tweet = Tweet.find(params[:id])
-    if params["content"].empty?
-      flash[:empty_tweet] = "Please enter content for your tweet"
-      redirect to "/tweets/#{params[:id]}/edit"
-    end
-    tweet.update(:content => params["content"])
-    tweet.save
 
-    redirect to "/tweets/#{tweet.id}"
-  end
-
-  post '/tweets/:id/delete' do
-    if !Helpers.is_logged_in?(session)
-      redirect to '/login'
-    end
-    @tweet = Tweet.find(params[:id])
-    if Helpers.current_user(session).id != @tweet.user_id
-      flash[:wrong_user] = "Sorry you can only delete your own tweets"
+  delete "/tweets/:id/delete" do
+    @tweet = Tweet.find_by_id(params[:id])
+     if logged_in? && @tweet.user == current_user
+      @tweet.delete
       redirect to '/tweets'
     end
-    @tweet.delete
-    redirect to '/tweets'
   end
 
 end
