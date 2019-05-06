@@ -19,15 +19,14 @@ class UsersController < ApplicationController
     @user.save
     session[:user_id] = @user.id
     redirect to '/tweets'
-    end
   end
 
   get '/login' do
     if !logged_in?
-      erb :'/users/login'
+      erb :'users/login'
     else
       redirect '/tweets'  
-     end
+    end
   end
 
   post '/login' do
