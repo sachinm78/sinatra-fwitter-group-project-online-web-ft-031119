@@ -6,7 +6,7 @@ class TweetsController < ApplicationController
       @tweets = Tweet.all
       erb :'tweets/tweets'
     else
-      redirect to "/login"
+      redirect "/login"
     end
   end
 
@@ -23,9 +23,8 @@ class TweetsController < ApplicationController
     @tweet = Tweet.new(content: params[:content], user: current_user)
     @user = current_user
     if logged_in? && !@tweet.content.blank? && @tweet.save
-      redirect to "/tweets/#{@tweet.id}"
+      redirect "/tweets/#{@tweet.id}"
     else
-      flash[:empty_tweet] = "Please enter content for your tweet"
       redirect "/tweets/new"
     end
     tweet = Tweet.create(:content => params["content"], :user_id => user.id)
@@ -36,7 +35,7 @@ class TweetsController < ApplicationController
       @tweet = Tweet.find_by_id(params[:id])
       erb :'tweets/show_tweet'
     else
-      redirect to "/login"
+      redirect "/login"
     end
   end
 
@@ -46,20 +45,18 @@ class TweetsController < ApplicationController
       current_user(session).id = @tweet.user_id
       erb :'tweets/edit_tweet'
     else
-      flash[:wrong_user_edit] = "Sorry you can only edit your own tweets"
-      redirect to '/tweets'
+      redirect '/tweets'
     end
   end
 
   patch '/tweets/:id' do
     tweet = Tweet.find(params[:id])
     if params["content"].empty?
-      flash[:empty_tweet] = "Please enter content for your tweet"
-      redirect to "/tweets/#{params[:id]}/edit"
+      redirect "/tweets/#{params[:id]}/edit"
     end
     tweet.update(:content => params["content"])
     tweet.save
-    redirect to "/tweets/#{tweet.id}"
+    redirect "/tweets/#{tweet.id}"
   end
 
   post '/tweets/:id/delete' do
@@ -67,9 +64,8 @@ class TweetsController < ApplicationController
       @tweet = Tweet.find(params[:id])
       current_user(session).id = @tweet.user_id
       @tweet.delete
-      redirect to '/tweets'
+      redirect '/tweets'
     else
-      flash[:wrong_user] = "Sorry you can only delete your own tweets"
       redirect to '/tweets'
     end
   end
