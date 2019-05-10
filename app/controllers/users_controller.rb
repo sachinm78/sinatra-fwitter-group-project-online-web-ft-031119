@@ -30,10 +30,10 @@ class UsersController < ApplicationController
     user = User.find_by(:username => params[:username])
     if user && user.authenticate(params[:password])
       session[:user_id] = user.id
-      redirect to '/tweets'
+      redirect '/tweets'
     else
       flash[:login_error] = "Incorrect login. Please try again."
-      redirect to '/signup'
+      redirect '/signup'
     end
   end
   
